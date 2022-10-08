@@ -8,15 +8,13 @@ The server must accept requests to buy or sell dollars for rubles from different
 
 Build guide:
 
-# cd
-
 git clone git@github.com:Add-JDHero/client-server-market.git
 cd client-server-market
 mkdir build && cd ./build
 cmake ..
 cmake —build .
 
-# write ./Server or ./Client
+After building: write ./Server or ./Client
 
 
 
