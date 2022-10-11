@@ -14,7 +14,7 @@ mkdir build && cd ./build
 cmake ..  
 cmake —build .  
 
-After building: write ./Server or ./Client
+After building: write ./Server or ./Client or ./TestCoreFunc
 
 
 

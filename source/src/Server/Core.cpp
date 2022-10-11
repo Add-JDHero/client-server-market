@@ -23,8 +23,8 @@ std::string Core::HandleRequest(const std::string& aUserName, const Requests req
     int result_sum = sum;
     if (req == Requests::BUY) {
         int max = cost;
-        auto it = active_orders_.begin();
-        while ((it = Min_element(active_orders_.begin(), active_orders_.end(), Requests::SELL)) != active_orders_.end() && it->second.Cost <= max) {
+        auto it = active_trades_.begin();
+        while ((it = Min_element(active_trades_.begin(), active_trades_.end(), Requests::SELL)) != active_trades_.end() && it->second.Cost <= max) {
             if (result_sum >= it->second.Sum) {
                 std::string partner_name = it->first;
                 MakeDeal(it, aUserName, partner_name, result_sum);
@@ -33,8 +33,8 @@ std::string Core::HandleRequest(const std::string& aUserName, const Requests req
 
     } else if (req == Requests::SELL){
         int min = cost;
-        auto it = active_orders_.begin();
-        while ((it = Max_element(active_orders_.begin(), active_orders_.end(), Requests::BUY)) != active_orders_.end() && it->second.Cost >= min) {
+        auto it = active_trades_.begin();
+        while ((it = Max_element(active_trades_.begin(), active_trades_.end(), Requests::BUY)) != active_trades_.end() && it->second.Cost >= min) {
             if (result_sum >= it->second.Sum) {
                 std::string partner_name = it->first;
                 MakeDeal(it, aUserName, partner_name, result_sum);
@@ -46,7 +46,7 @@ std::string Core::HandleRequest(const std::string& aUserName, const Requests req
     }
 
     if (result_sum != 0) {
-        active_orders_.push_back({aUserName, {req, result_sum, cost}});
+        active_trades_.push_back({aUserName, {req, result_sum, cost}});
     }
     return "The request has been sent successfully.";
 }
@@ -63,7 +63,7 @@ std::string Core::GetBalance(const std::string& aUserName) {
 std::vector<std::string> Core::GetActiveTrades(const std::string& aUserName) {
     std::vector<std::string> result;
     std::string request;
-    for (const auto& order: active_orders_) {
+    for (const auto& order: active_trades_) {
         if (order.first == aUserName) {
             request = order.second.req != Requests::BUY ? "SELL"s : "BUY"s;
             result.push_back(request + "_usd:"s + std::to_string(order.second.Sum) + "_rub:"s + std::to_string(order.second.Cost) + " "s);
@@ -80,9 +80,9 @@ std::vector<std::string> Core::GetActiveTrades(const std::string& aUserName) {
 std::vector<std::string> Core::GetCompletedTradesList(const std::string& aUserName) {
     std::vector<std::string> result;
     std::string request;
-    for (const auto& TradeDeal: completed_orders_[aUserName]) {
+    for (const auto& TradeDeal: completed_trades_[aUserName]) {
         request = TradeDeal.req != Requests::BUY ? "SELL"s : "BUY"s;
-        result.push_back(request + "_usd:"s + std::to_string(TradeDeal.Sum) + "_rub:"s + std::to_string(TradeDeal.Cost) + " \0"s);
+        result.push_back(request + "_usd:"s + std::to_string(TradeDeal.Sum) + "_rub:"s + std::to_string(TradeDeal.Cost) + " "s);
     }
     if (!result.empty()) {
         result.back() += '\n';
@@ -92,8 +92,7 @@ std::vector<std::string> Core::GetCompletedTradesList(const std::string& aUserNa
     return std::move(result);
 }
 
-Core::iterator Core::Max_element(iterator first, iterator last, Requests req)
-{
+Core::iterator Core::Max_element(iterator first, iterator last, Requests req) {
     if (first == last) return last;
     first = std::find_if(
             first, last,
@@ -114,8 +113,7 @@ Core::iterator Core::Max_element(iterator first, iterator last, Requests req)
     return largest;
 }
 
-Core::iterator Core::Min_element(iterator first, iterator last, Requests req)
-{
+Core::iterator Core::Min_element(iterator first, iterator last, Requests req) {
     if (first == last) return last;
     first = std::find_if(
             first, last,
@@ -144,21 +142,21 @@ void Core::UpdateUsersBalance(const std::string& aTraderName, const std::string&
     user_balance_[aBuyerName].second -= it->second.Cost * it->second.Sum;
 }
 
-void Core::MakeDeal(iterator it, const std::string initiator, const std::string partner, int& result_sum) {
+void Core::MakeDeal(iterator it, const std::string& initiator, const std::string& partner, int& result_sum) {
     result_sum -= it->second.Sum;
 
     int usd_trade_count = it->second.Sum;
     int rub_cost_per_one = it->second.Cost;
     Requests request = it->second.req == Requests::BUY ? Requests::SELL : Requests::BUY;
-    completed_orders_[partner].push_back({it->second.req, usd_trade_count, rub_cost_per_one});
-    completed_orders_[initiator].push_back({request, usd_trade_count, rub_cost_per_one});
+    completed_trades_[partner].push_back({it->second.req, usd_trade_count, rub_cost_per_one});
+    completed_trades_[initiator].push_back({request, usd_trade_count, rub_cost_per_one});
 
     if (request == Requests::BUY) {
         UpdateUsersBalance(partner, initiator, it);
     } else {
         UpdateUsersBalance(initiator, partner, it);
     }
-    active_orders_.erase(it);
+    active_trades_.erase(it);
 }
 
 Core& GetCore() {

@@ -39,16 +39,16 @@ private:
 
     iterator Max_element(iterator first, iterator last, Requests req);
 
-    iterator Min_element(iterator first, iterator last, Requests req);
+    static iterator Min_element(iterator first, iterator last, Requests req);
 
     void UpdateUsersBalance(const std::string& aTraderName, const std::string& aBuyerName, iterator it);
 
-    void MakeDeal(iterator it, const std::string initiator, const std::string partner, int& result_sum);
+    void MakeDeal(iterator it, const std::string& initiator, const std::string& partner, int& result_sum);
 
     std::map<std::string, std::string> mUsers_;
     std::map<std::string, std::pair<int, int>> user_balance_;
-    std::list<std::pair<std::string, TradeDeal>> active_orders_;
-    std::map<std::string, std::deque<TradeDeal>> completed_orders_;
+    std::list<std::pair<std::string, TradeDeal>> active_trades_;
+    std::map<std::string, std::deque<TradeDeal>> completed_trades_;
 };
 
 Core& GetCore();
