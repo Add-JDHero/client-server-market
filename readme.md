@@ -8,21 +8,22 @@ The server must accept requests to buy or sell dollars for rubles from different
 
 Required packages: g++ compiler, CMake,  lib Boost(asio).
 
-# Linux(Ubuntu)
-# Installation instructions:
+# Linux(Ubuntu) installation instructions:
 ```
 sudo apt install g++
 sudo apt install cmake
 sudo apt install libboost-all-dev
 ```
 
-Build guide:
+project build guide:
 
+```
 git clone git@github.com:Add-JDHero/client-server-market.git  
 cd client-server-market  
 mkdir build && cd ./build  
 cmake ..  
-cmake —build .  
+cmake —build .
+```  
 
 After building: write ./Server or ./Client or ./TestCoreFunc
 
